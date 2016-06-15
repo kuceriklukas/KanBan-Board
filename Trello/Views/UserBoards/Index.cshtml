@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style type="text/css">
+    ul.ui-autocomplete {
+        z-index: 1100;
+    }
+</style>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+<div class="gray row jumbotron" style="padding-bottom: 0; padding-top: 20px; margin-top: -20px; background-color: #0079BF">
+    <div class="text-center">
+        <div style="background-color: white; padding-top: 20px; padding-bottom: 15px; width: 90px; margin: auto; border-radius: 5px">
+            <i class="fa fa-users fa-3x"></i>
+        </div>
+    </div>
+    <div class="text-center">
+        <h2 style="color: white">Members area</h2>
+    </div>
+    <div class="text-center">
+        <div class="btn-group" role="group" aria-label="..." style="margin-bottom: -5px;" >
+            <button type="button" style="border: none; font-size: 17px; font-weight: 700; width: 200px" class="links btn btn-default active"><i class="fa fa-users"></i>&nbsp;Members</button>
+            <button type="button" style="border: none;font-size: 17px; font-weight: 700; width: 200px" class="links btn btn-default"><i class="fa fa-credit-card"></i>&nbsp;Payments</button>
+        </div>
+    </div>
+</div>
+
+<div class="col-xs-6 col-md-offset-4">
+    <form role="form" method="POST" action="@Url.Action("Create","UserBoards")">
+        <div class="form-inline">
+            <input type="hidden" name="BoardId" value="@ViewBag.BoardId"/>
+            <input type="hidden" id="UserId" name="UserId" value=""/>
+            <input type="text"  class="to_gray addMember form-control">
+            <button class="btn btn-default" type="submit" style="background-color: #0079BF;color:white"><i class="fa fa-plus"></i>&nbsp;Add member</button>
+        </div>
+    </form>
+</div>
+
+
+
+
+<div id="MemberAreaContent" class="col-xs-4 col-md-offset-4" style="padding-top: 10px; padding-bottom: 20px">
+  @Html.Partial("_userBoardList")
+</div>
+
+
+
+<script>
+
+
+
+    $(function () {
+
+        var users = [];
+        var userId = null;
+        var boardId = $("input[name=BoardId]").val();
+        var $member = $(".addMember");
+
+        function getUsers() {
+            return $.ajax({
+                url: "/AspNetUsers/GetAspNetUsersForBoard/" + boardId,
+                type: "GET",
+                cache:"false",
+                async: false
+            });
+        }
+
+        getUsers().done(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                users.push(data[i]);
+            }
+        });
+
+       
+        $member.autocomplete({
+            minLength: 1,
+            source: users,
+            focus: function (event, ui) {
+                $member.val(ui.item.value);
+                return false;
+            },
+            select: function (event, ui) {
+                var userId = ui.item.id;
+                $("#UserId").val(userId);
+                return false;
+            }
+        });
+
+
+        $member.data('ui-autocomplete')._renderItem = function (ul, item) {
+
+            var shorUsertName = item.value.match(/\b\w/g).join('');
+
+            return $('<li style="height:35px !important">')
+                .append('<span style="background-color:lightgray; border-radius:3px; text-align: center;vertical-align: middle;">' + shorUsertName + '</span> ') //
+                .append('<a>' + item.value + '</a>')
+                .appendTo(ul);
+        };
+
+    });
+
+    $(function () {
+
+        $(document).on('click', '.delete_member', function () {
+            $(this).closest('form').submit();
+        });
+
+        $(document).on('focus', '.addMember', function () { // input focus in
+            $(this).removeClass("to_gray").addClass('to_white');
+        });
+
+        $(document).on('focusout', '.addMember', function () { // input focus out
+            $(this).removeClass("to_white").addClass('to_gray');
+        });
+
+    });
+
+
+</script>

@@ -1,0 +1,24 @@
+﻿
+<div class="header margin_top_20">
+    <i class="glyphicon glyphicon-pushpin"></i> Attachments
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@foreach (var attachment in ViewBag.Attachments)
+{
+    <a class="download_image margin_right_10 red_tooltip" id="@attachment.Id" data-placement="top"  data-toggle="tooltip" title="@attachment.FileName" href="@Url.Action("DownloadFile", "Files",new {id = @attachment.Id})">
+      <img class="margin_top_10" src="@Url.Action("GetFile", "Files", new {id = @attachment.Id})" height="64" />
+    </a>
+}
+
+
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>

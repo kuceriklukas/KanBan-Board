@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Trello.DAL.Models.Board>
+
+@{
+    ViewBag.Title = "Boards";
+}
+
+<p class="col-xs-12">
+    @Html.Partial("_CreateBoardDialog") <!-- Include create board dialog  -->
+</p>
+
+@foreach (var board in Model)
+{
+    <div class="board-wrapper">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+        {
+            @Html.AntiForgeryToken()
+        }
+        
+        <form method="GET" action="@Url.Action("Index", "UserBoards")">
+            <div class="board col-md-2" id="@board.Id">
+                <input type="hidden" name="id" value="@board.Id"/>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4 class="col-xs-10">@board.Name </h4>
+                        <div class="col-xs-2">
+                            <i style="font-size: 18px; margin-top: 10px" class="delete-board fa fa-trash-o"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    Tickets: @board.Tickets.Count
+                </div>
+                <div class="col-md-10">
+                    Created: @board.CreatedOn
+                </div>
+                <div class="col-xs-2">
+                    <i style="font-size: 18px; margin-top: 10px" class="userBoardLink fa fa-edit text-right"></i>
+                </div>
+            </div>
+        </form>
+    </div>
+}
+<div class="board new col-md-2" >
+    <center><p>Create new board...</p></center>
+</div>
+

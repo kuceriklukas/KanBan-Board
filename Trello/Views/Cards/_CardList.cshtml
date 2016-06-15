@@ -1,0 +1,58 @@
+﻿@using System.Collections
+@using Trello.DAL.Models
+
+
+    <div class="cardsBox droptrue inner">
+        <!-- droptrue has items inner and (ui-state-default) -->
+        @foreach (var card in ViewBag.Cards)
+        {
+           var finishedTasks = ((IEnumerable<TaskItem>)card.TaskItems).Count(i => i.Status == "DONE");
+            string cardId = "c" + @card.Id;
+
+            <!--CARD-->
+            <div id="@cardId" class="ui-state-default card">
+                @if (@card.CardLabels != null)
+                {
+                    <div class="row">
+                        <div class="col-xs-12">
+                            @foreach (var cardLabel in @card.CardLabels)
+                            {
+                                <div class="card_label col-xs-4" style="background-color: @cardLabel.Label.ColorTag; margin-right: 5px;"></div>
+                            }
+                        </div>
+                    </div>
+                }
+                <div class="card_name col-xs-12">@card.Name</div>
+
+                <!--ACTION ICONS -->
+                <div class="icons">
+                    <div class="icons">
+                        <i class="col-xs-1 description glyphicon glyphicon-align-left"></i>
+                        <i class="col-xs-1 count glyphicon glyphicon-check"></i>
+                        <div class="col-xs-1">@finishedTasks/@card.TaskItems.Count</div>
+                        @{
+                            if (@card.Attachments.Count > 0)
+                            {
+                                <i class="col-xs-1 count glyphicon glyphicon-pushpin"></i>
+                            }
+
+                            if (@card.Comments.Count > 0)
+                            {
+                                <i class="col-xs-1 count glyphicon glyphicon-comment"></i>
+                            }
+
+                            if (@card.DueDate != null)
+                            {
+                                <i class="col-xs-1 count glyphicon glyphicon-calendar"></i>
+                            }
+                        }
+                    </div>
+
+                </div>
+                <!--ACTION ICONS -->
+
+            </div>
+           <!--CARD-->
+        }
+    </div>
+

@@ -1,0 +1,18 @@
+﻿<div id="label_area" class="margin_top_30">
+    <div class="header">
+        <i class="glyphicon glyphicon-paperclip"></i> Labels
+    </div>
+    @foreach (var cardLabel in @ViewBag.CardLabels)
+    {
+        <div class="row">
+            <div class="col-xs-4">
+                <div class="labelDetailView" data-color="" id="@cardLabel.Label.Id" style="background-color: @cardLabel.Label.ColorTag;"></div>
+            </div>
+            <div class="col-xs-4">
+                <p class="removeLabelLink cursorAsHand"><i class="glyphicon glyphicon-remove-circle"></i> Remove label</p>
+            </div>
+        </div>        
+    }
+
+</div>
+

@@ -1,0 +1,223 @@
+﻿@model Trello.DAL.Models.Board
+
+@{
+    ViewBag.Title = "Tickets";
+}
+
+<body id="board_details" style="background-color: #0079BF">
+<div class="col-xs-10">
+    <div class="col-xs-12">
+        <h4 class="col-xs-12">Board:<b> @Model.Name </b></h4>
+        <input type="hidden" id="BoardId" value="@Model.Id"/>
+        <div class="col-xs-12"></div>
+    </div>
+
+    <div>
+    </div>
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new {id = "__AjaxAntiForgeryForm"}))
+    {
+        @Html.AntiForgeryToken()
+    }
+
+    <div class="col-xs-12 ui-state">
+        <!-- ui-state is connected with outer class -->
+
+        @foreach (var ticket in Model.Tickets)
+        {
+            <div class="outer col-xs-2">
+                <div class="ui-state-default">
+                    <div class="ticket clearfix" id="@ticket.Id">
+                        <div class="row">
+                            <div class="col-xs-10">
+                                <div contenteditable="true" class="name col-xs-12">
+                                    <b>@ticket.Name</b>
+                                </div>
+                            </div>
+                            <div class="col-xs-2 pull-right">
+                                <i class="delete-ticket fa fa-trash-o"></i>
+                            </div>
+                        </div>
+
+
+                        <!-- CARD LIST -->
+                        <div class="cardslist">
+                            <div class="cardsBox droptrue inner" id="100">
+                                <!-- droptrue has items inner and (ui-state-default) -->
+                                @foreach (var card in ticket.Cards)
+                                {
+                                    int finishedTasks = (card.TaskItems).Count(i => i.Status == "DONE");
+                                    <!--CARD-->
+                                    <div id="@Html.Id("c" + @card.Id)" class="card ui-state-default">
+                                        @if (@card.CardLabels != null)
+                                        {
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    @foreach (var cardLabel in @card.CardLabels)
+                                                    {
+                                                        <div class="card_label col-xs-4" style="background-color: @cardLabel.Label.ColorTag; margin-right: 5px;"></div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="card_name col-xs-12">@card.Name</div>
+
+                                        <!--ACTION ICONS -->
+                                        <div class="icons">
+                                            <i class="col-xs-1 description glyphicon glyphicon-align-left"></i>
+                                            <i class="col-xs-1 count glyphicon glyphicon-check"></i>
+                                            <div class="col-xs-1">@finishedTasks/@card.TaskItems.Count</div>
+                                            @{
+                                                if (@card.Attachments.Count > 0)
+                                                {
+                                                    <i class="col-xs-1 count glyphicon glyphicon-pushpin"></i>
+                                                }
+
+                                                if (@card.Comments.Count > 0)
+                                                {
+                                                    <i class="col-xs-1 count glyphicon glyphicon-comment"></i>
+                                                }
+
+                                                if (@card.DueDate != null)
+                                                {
+                                                    <i class="col-xs-1 count glyphicon glyphicon-calendar"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <!--ACTION ICONS -->
+
+                                    </div>
+                                    <!--CARD-->
+                                }
+                            </div>
+                        </div>
+                        <!-- CARDS DIV -->
+                        <!-- ADD a card link -->
+                        <div class="cardsBoxContainer col-xs-12">
+                            <a class="addCard new" href="#">Add a card...</a>
+                        </div>
+                        <!-- ADD card link -->
+                        <!-- FOOTER BUTTONS -->
+                        <footer style="display: none" class="card_footer col-xs-5 margin_5">
+                            <input type="button" class="btn_addCard btn btn-success" value="Add"/>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </footer>
+                        <!-- FOOTER BUTTONS -->
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <div class="outer col-xs-2">
+        <div class="ui-state-default">
+            <div class="ticket  clearfix" id="new_ticket">
+                <div class="row">
+                    <div class="col-xs-10">
+                        <div contenteditable="true" class="name col-xs-12">
+                            <b>New ticket</b>
+                        </div>
+                    </div>
+                </div>
+                <!-- ADD a ticket -->
+                <div class="ticketContainer col-xs-12 margin_top_10">
+                    <a class="addTicket" href="#">Add a ticket...</a>
+                </div>
+                <!-- ADD a ticket -->
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div id="connectedUsers" class="col-xs-2">
+    <div class="panel panel-default" style="border: none">
+        <div class="panel-heading text-center" style="background-color: #0067A3; color: white"><b>Logged users</b></div>
+        <div id="connectedUserList" class="panel-body">
+            
+        </div>
+    </div>
+</div>
+</body>
+
+
+<div id="CardDetailModal" class="modal"></div>
+
+
+<!-- global context menu to delete attachment-->
+<div class="text-center" id='contexmennu'>
+    <i class="fa fa-trash-o"></i> Delete
+</div>
+
+
+<script>
+
+    // attach sortable event on cards --  moving Cards && remembering positions
+    function AttachCardSortable() {
+        $(".droptrue").sortable({
+            connectWith: ".inner",
+            update: function(event, ui) { // update cards positions
+
+                var data = [];
+                var $items = $(this).children();
+
+                $items.each(function() { // get all positions and card ids
+
+                    var index = $(this).index();
+                    var cardId = $(this).attr('id').replace(/\D/g, '');
+                    var ticketId = $(this).closest(".outer").find('.ticket').attr('id');
+
+                    var row = { 'Id': cardId, 'PositionNo': index, 'TicketId': ticketId };
+
+                    data.push(row);
+                });
+
+                console.log(JSON.stringify(data));
+                $.ajax({
+                    url: "/Cards/UpdatePosition",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(data)
+                });
+            }
+        });
+    }
+
+    AttachCardSortable();
+
+
+    // moving Tickets && remembering ticket positions
+    function AttachTicketSortable() {
+        $(".ui-state").sortable({
+            connectWith: ".outer",
+            update: function(event, ui) {
+
+                var data = [];
+                var $items = $(this).children();
+                var BoardId = $("#BoardId").val();
+
+                $items.each(function() { // get all positions and ticket ids
+
+                    var index = $(this).index();
+                    var ticketId = $(this).find('.ticket').attr('id');
+                    var row = { 'Id': ticketId, 'PositionNo': index, 'BoardId': BoardId };
+
+                    data.push(row);
+                });
+
+                $.ajax({
+                    url: "/Tickets/UpdatePosition",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(data)
+                });
+            },
+            cancel: 'textarea,[contenteditable=true]'
+
+        });
+    }
+
+    AttachTicketSortable();
+</script>

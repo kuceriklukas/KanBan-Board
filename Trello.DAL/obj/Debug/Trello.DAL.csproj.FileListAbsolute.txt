@@ -1,0 +1,10 @@
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\Trello.DAL.dll.config
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\Trello.DAL.dll
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\Trello.DAL.pdb
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\EntityFramework.dll
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\EntityFramework.xml
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\obj\Debug\Trello.DAL.csprojResolveAssemblyReference.cache
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\obj\Debug\Trello.DAL.dll
+C:\Users\kucer\Source\Workspaces\My First Project\Trello\Trello.DAL\obj\Debug\Trello.DAL.pdb

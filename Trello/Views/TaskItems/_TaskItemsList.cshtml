@@ -1,0 +1,22 @@
+﻿
+@foreach (var task in ViewBag.TaskItems)
+{
+    string checkID = "ch" + task.Id;
+
+    if (task.Status == "DONE")
+    {
+        <div class="checkbox_group">
+            <div class="checkbox_text checked">
+                <input type="checkbox" id="@checkID" checked /> @task.Name
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="checkbox_group">
+            <div class="checkbox_text">
+                <input type="checkbox" id="@checkID" /> @task.Name
+            </div>
+        </div>
+    }
+}

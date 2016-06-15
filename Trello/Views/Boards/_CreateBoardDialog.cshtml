@@ -1,0 +1,32 @@
+﻿<div id="dialog-message" style="overflow: hidden; display: none">
+   @using (@Html.BeginForm("Create", "Boards", FormMethod.Post))
+   {
+    @Html.AntiForgeryToken()
+    <div class="title row" style="border-bottom: 1px solid #d6dadc; height: 25px">
+        <div class="col-xs-10">Create board</div>
+        <div class="pull-right col-xs-2"><i class="close_dialog fa fa-times"></i>
+        </div>
+    </div>
+    <div class="body" style="margin-top: 10px">
+        <p>
+            Title
+        </p>
+        <p>
+            <input id="board_name" name="Name" class="form-control" type="text"/>
+        </p>
+        <p>
+            Team
+        </p>
+        <p>
+            Teams make sharing and working within a group even easier.
+            It doesn’t look like you are a member of any teams.Create a team.
+        </p>
+        <p>
+            <i class="fa fa-lock" style="color: #ED6C5A"></i> This board will be <b>private</b>
+        </p>
+    </div>
+    <div style="border-top: 1px solid #d6dadc;" class="footer">
+        <button id="btn_create_board" style="margin-top: 10px" class="btn btn-success">Create</button>
+    </div>
+    }
+</div>

@@ -1,0 +1,217 @@
+﻿@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity.Owin
+@using Trello.DAL.Models
+@using Trello.Models
+
+
+@{
+    //logged in user
+    ApplicationUser user = System.Web.HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(System.Web.HttpContext.Current.User.Identity.GetUserId());
+    string loggedUserShort = user.FirstName[0] + "" + user.LastName[0];
+}
+
+<!-- Partial View - Modal with card details and TaskItems -->
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+<div class="modal-dialog" >
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" ><i class="glyphicon glyphicon-th-list"></i><b> @ViewBag.Card.Name</b></h4>
+        </div>
+        <div class="modal-body clearfix">
+            <input type="hidden" name="TicketId" value="@ViewBag.Card.TicketId"/>
+            <div class="col-xs-9">
+                <div class="card_details_info"><i class="fa fa-info"></i> Details
+                </div>
+                <div><i class="glyphicon glyphicon-check"></i> Created on:@ViewBag.Card.CreatedOn</div>
+                <div>
+                    <i class="glyphicon glyphicon-calendar"></i>
+                    Due date: <span id="cardDueDate">@ViewBag.Card.DueDate</span>
+                </div>
+
+                <!-- LABEL AREA -->
+                <div id="label-area">
+                    @{ int labelsNum = ((IEnumerable<CardLabel>) ViewBag.CardLabels).Count();}
+                    @if (labelsNum > 0)
+                    {
+                        @Html.Partial("../Labels/_LabelDetails")
+                    }
+                </div>
+                <!--LABEL AREA -->
+
+
+
+                <!-- ATTACHMENT AREA -->
+                <div id="attachement_area">
+                    @{ int attachmentNum = ((IEnumerable<Attachment>) ViewBag.Attachments).Count();}
+                    @if (attachmentNum > 0)
+                    {
+                        @Html.Partial("../Attachments/_AttachmentList")
+                    }
+                </div>
+                <!-- ATTACHMENT AREA -->
+
+
+
+                <!--TASK AREA-->
+                <div id="task_area" class="margin_top_30">
+                    <div class="header">
+                        <i class="glyphicon glyphicon-check"></i> Tasks
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div id="tasks">
+                        @Html.Partial("../TaskItems/_TaskItemsList")
+                    </div>
+                    <div class="add_task_item_container col-xs-12 padding_left_right_0">
+                        <div id="add_task_item_txt">
+                            Add an item...
+                        </div>
+                        <input style="display: none; max-width: 500px" type="text" class="form-control" id="add_task_item_input" placeholder="Add item..."/>
+                    </div>
+
+                    <div id="add_task_item_btns" class="col-xs-2 padding_left_right_0" style="margin-top: 5px; display: none">
+                        <input type="button" class="btn_addTask btn btn-success" value="Add"/>
+                        <button type="button" class="close">&times;</button>
+                    </div>
+                </div>
+                <!--TASK AREA-->
+
+                <div class="clearfix"></div>
+
+
+                @{
+                }
+                <!--COMMENT AREA-->
+                <div id="comment_area" class="margin_top_30">
+                    <div class="header">
+                        <i class="fa fa-comments-o"></i> Add Comment
+                    </div>
+                    <div class="user_label text-center padding_left_right_0">@loggedUserShort</div>
+                    <textarea class="add_comment" id="comment_text" placeholder="Add comment"></textarea>
+                    <button id="btn_addComment" class="margin_top_10 btn btn-default" style="background-color: #E2E4E6">Send</button>
+                    <div id="comments">
+                        @{ int comments_num = ((IEnumerable<Comment>) ViewBag.Comments).Count();}
+                        @if (comments_num > 0)
+                        {
+                            <div class="header margin_top_30 margin_bottom_20">
+                                <i class="glyphicon glyphicon-align-right"></i> Activity
+                            </div>
+                            @Html.Partial("../Comments/_CommentsList")
+                        }
+                    </div>
+                </div>
+                <!--COMMENT AREA-->
+
+
+            </div> <!--col-xs-9 -->
+
+
+            <!--BUTTON SECTION-->
+            <div class="col-xs-3 padding_left_right_0">
+                <div class="header"><b>Add</b>
+                </div>
+                <button id="labelsDialog" class="light_gray_border btn btn-default btn-block"><i class="fa fa-tags"></i> Labels</button>
+                <button class="light_gray_border btn btn-default btn-block" id="chooseDateButton" ><i class="fa fa-clock-o"></i> Due date</button>
+
+                <form action="" method="POST" id="attachmentFormUpload" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <span style="margin-top: 5px" class="btn btn-default btn-file btn-block">
+                        <input type="hidden" value="@ViewBag.Card.Id" name="CardId" id="CardId" />
+                        <i class="glyphicon glyphicon-paperclip"></i>  Attachment <input onchange="SendAttachment()" name="upload" type="file">
+                    </span>
+                </form>
+            </div>
+
+            <div class="col-xs-3 padding_left_right_0 margin_top_30">
+                <div class="header"><b>Actions</b>
+                </div>
+                <button class="light_gray_border btn btn-default btn-block"><i class="fa fa-arrow-right"></i> Move</button>
+                <button class="light_gray_border btn btn-default btn-block"><i class="fa fa-save"></i> Copy</button>
+                <button class="light_gray_border btn btn-default btn-block"><i class="fa fa-trash-o"></i> Archive</button>
+            </div>
+            <!--BUTTON SECTION-->
+
+            <div id="loadDialogArea">
+                @Html.Partial("../Labels/_AddLabel"); <!-- Include create board dialog -->
+            </div>
+        </div>        
+        <div class="modal-footer">
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="timePickerModal">
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryFormDueDates" }))
+    {
+        @Html.AntiForgeryToken()
+    }
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseDateModal()">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-calendar"></i><b> Choose date</b></h4>
+            </div>
+            <div class="modal-body">
+                <p>Here you can choose the date and hour.</p>
+                <div id="datepicker"></div>
+                <div class="row margin_top_10">
+                    <div class="col-xs-4">
+                        <select id="timePicker" class="form-control">
+                            <option value="h09">9:00</option>
+                            <option value="h10">10:00</option>
+                            <option value="h11">11:00</option>
+                            <option value="h12">12:00</option>
+                            <option value="h13">13:00</option>
+                            <option value="h14">14:00</option>
+                            <option value="h15">15:00</option>
+                            <option value="h16">16:00</option>
+                            <option value="h17">17:00</option>
+                            <option value="h18">18:00</option>
+                            <option value="h19">19:00</option>
+                            <option value="h20">20:00</option>
+                            <option value="h21">21:00</option>
+                            <option value="h22">22:00</option>
+                            <option value="h23">23:00</option>
+                            <option value="h00">00:00</option>
+                            <option value="h01">1:00</option>
+                            <option value="h02">2:00</option>
+                            <option value="h03">3:00</option>
+                            <option value="h04">4:00</option>
+                            <option value="h05">5:00</option>
+                            <option value="h06">6:00</option>
+                            <option value="h07">7:00</option>
+                            <option value="h08">8:00</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="button" class="btn btn-success" id="sendDateButton" value="Choose this date" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    CalculateProgressBar();
+    ColorDialogEvent();
+    ChooseDateEvent();
+    
+    function CloseDateModal() {
+        $('#timePickerModal').modal('toggle');
+    }
+</script>
+
+
+
+

@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity.Owin
+@using Trello.Models
+
+@{
+    //logged in user
+    ApplicationUser user = System.Web.HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(System.Web.HttpContext.Current.User.Identity.GetUserId());
+    string loggedUser = user.FirstName + " " + user.LastName;
+}
+
+<input type="hidden" id="loggedUser" value="@loggedUser"/>
+
+    @foreach (var comment in ViewBag.Comments)
+    {
+        string commentId = "com_id" + comment.Id;
+        string userNameShort = @comment.AspNetUser.FirstName[0] +""+ @comment.AspNetUser.LastName[0];
+        
+
+        <div class="comment margin_top_20" id="@commentId">
+            <input type="hidden" id="UserId" value="@comment.AspNetUserId"/>
+            <div class="user_label text-center padding_left_right_0">@userNameShort</div>
+            <div class="dark_grey padding_left_5">
+                <b>@comment.AspNetUser.UserName</b>
+            </div>
+            <code class="comment_textarea col-xs-12">@comment.Text</code>
+
+            <div class="comment_links col-xs-12">
+                <div style="display: inline">@comment.CreatedOn</div>
+
+                @if (HttpContext.Current.User.Identity.GetUserId() == comment.AspNetUserId)
+                {
+                    <div style="display: inline">-
+                        <a class="edit_comment" href="#"> Edit</a>
+                    </div>
+                    <div style="display: inline">-
+                        <a class="delete_comment" href="#"> Delete</a>
+                    </div>
+                }
+                else
+                {
+                    <div style="display: inline">
+                        -
+                        <a class="reply_comment_link" href="#"> Reply</a>
+                    </div>
+                }
+            </div>
+            <div class="edit_comment_btns col-xs-2 padding_left_right_0" style="margin-top: 5px; margin-left: 5px; display: none">
+                <input type="button" class="btn_updateComment btn btn-success" value="Add"/>
+                <button type="button" class="close">&times;</button>
+            </div>
+
+            <div class="reply_comment_area margin_top_10">
+                @foreach (var reply in comment.CommentReplies)
+                {
+                    string replyId = "r" + reply.Id;
+                    string userNameShortReply = @reply.AspNetUser.FirstName[0] + "" + @reply.AspNetUser.LastName[0];
+                    string userFullName = @reply.AspNetUser.FirstName + " " + @reply.AspNetUser.LastName;
+
+                    <div class="clearfix"></div>
+                    <div class="reply_comment" id="@replyId">
+                        <div class="col-xs-12" style="padding-right: 0px">
+                            <input type="hidden" class="userFullName" value="@userFullName"/>
+                            <div class="comment_reply_user_label text-center col-xs-2">@userNameShortReply</div>
+                            <code class="comment_textarea col-xs-11" style="margin-left: 0px">@reply.Text</code>
+                        </div>
+                       
+                        <div class="comment_links col-xs-11 col-md-offset-1">
+                            <div style="display: inline">@reply.CreatedOn</div>
+
+                            @if (HttpContext.Current.User.Identity.GetUserId() == reply.AspNetUserId)
+                            {
+                                <div style="display: inline">
+                                    -
+                                    <a class="edit_reply_comment" href="#"> Edit</a>
+                                </div>
+                                <div style="display: inline">
+                                    -
+                                    <a class="delete_reply_comment" href="#"> Delete</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="display: inline">
+                                    -
+                                    <a class="reply_on_reply_comment_link" href="#"> Reply</a>
+                                </div>
+                            }
+                        </div>
+                        <div class="edit_reply_comment_btns col-xs-2 padding_left_right_0" style="margin-top: 5px; margin-left: 55px; display: none">
+                            <input type="button" class="btn_updateCommentReply btn btn-success" value="Add" />
+                            <button type="button" class="close">&times;</button>
+                        </div>
+                    </div>
+
+                }
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    }

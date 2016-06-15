@@ -1,0 +1,22 @@
+﻿<!-- Partial View - Shows possible labels -->
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryFormLabels" }))
+{
+    @Html.AntiForgeryToken()
+}
+<div id="label-dialog" style="overflow: hidden; display: none">
+        <div class="title row" style="border-bottom: 1px solid #d6dadc; height: 25px">
+            <div class="col-xs-10">Labels</div>
+            <div class="pull-right col-xs-2">
+                <i class="close_dialog fa fa-times"></i>
+            </div>
+        </div>
+    <div class="body" style="margin-top: 10px">
+        @foreach (var label in ViewBag.Labels)
+        {
+            <div id="id_@label.Id" class="add_card_label" style="background-color: @label.ColorTag"></div>
+        }      
+    </div>
+        <div style="border-top: 1px solid #d6dadc;" class="footer">
+            <p id="show">By clicking on a label you can assign it to this card.. Yay!</p>
+        </div>
+</div>
